@@ -26,6 +26,12 @@ class StateController extends GetxController {
     {"index": 1, "name": "合伙人", "focus": 0},
     {"index": 2, "name": "创始人", "focus": 0}
   ];
+  // 
+  List upLoadList = [
+    {"index": 0, "name": "首页", "focus": 1},
+    {"index": 1, "name": "合伙人", "focus": 0},
+    {"index": 2, "name": "创始人", "focus": 0}
+  ];
   // tabbar是否打开
   bool tabbarIsOpen = false;
   // pageView Controller
@@ -49,4 +55,12 @@ class StateController extends GetxController {
     tabbarIsOpen = value;
     update();
   }
+
+
+  setUpLoadList() {
+    
+  }
+
+
+
 }

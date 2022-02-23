@@ -13,9 +13,18 @@ import 'package:get/get.dart';
 import 'package:yu_gou_app/util/yg_colors.dart';
 import 'package:yu_gou_app/components/MyField/index.dart';
 import 'package:yu_gou_app/components/SubmitDiv/index.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:http_parser/http_parser.dart';  
+import 'dart:io';
+import 'package:dio/dio.dart';
+import 'package:yu_gou_app/components/ImagePicker/index.dart';
 // import 'package:yu_gou_app/components/CameraController/index.dart';
 // demo页面
 class NewContracts extends StatefulWidget {
+  const NewContracts({Key? key}) : super(key: key);
+
+  @override
   _NewContractsState createState() => _NewContractsState();
 }
 
@@ -101,6 +110,7 @@ class _NewContractsState extends State<NewContracts> {
 
   @override
   Widget build(BuildContext context) {
+     List<Map> _filesList = [];
     void _goBack() {
       Get.back();
     }
@@ -112,12 +122,71 @@ class _NewContractsState extends State<NewContracts> {
     void _updateAuditResults() {
       Get.back();
     }
-   void _handleClear(String formKey) {
+    void _handleClear(String formKey) {
       setState(() {
         _formData[formKey]?['value'] = '';
       });
     }
-  //   Map  details = Get.arguments;
+    _handleVideo() {
+
+    }
+    _handleImage() {
+
+    }
+    _handleError() {
+      
+    }
+    void _openGallery () async {
+      File _image;
+      final picker = ImagePicker();
+      const bool kIsWeb = identical(0, 0.0);
+      Future getImage() async {
+        final pickedFile = await picker.getImage(source: ImageSource.camera);
+        // final bytes = await pickedFile!.readAsBytes();
+        // setState(() {
+        //   if (pickedFile != null) {
+        //     if (kIsWeb) {
+        //       _image = Image.network(pickedFile.path);
+        //     } else {
+        //       _image = Image.file(File(pickedFile.path));
+        //     }
+        //     _image = File(pickedFile.path);
+        //   } else {
+        //     print('No image selected.');
+        //   }
+        // });
+        // return pickedFile;
+      }
+      Future<void> retrieveLostData() async {
+        final LostData response =
+            await picker.getLostData();
+        if (response.isEmpty) {
+          return;
+        }
+        if (response.file != null) {
+          setState(() {
+            if (response.type == RetrieveType.video) {
+              // _handleVideo(response.file);
+            } else {
+              // _handleImage(response.file);
+            }
+          });
+        } else {
+          // _handleError(response.exception);
+        }
+      }
+      // var imageUrl = await ImagePicker.pickImage(source: ImageSource.gallery, maxHeight: 150.0, maxWidth:150.0);
+      setState(() {
+        //将获取到的图片路径赋给_image，上传
+        _filesList.add({
+          'filename':'',
+          'path':'',
+        });
+      });
+      //上传开始
+    }
+
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -279,37 +348,32 @@ class _NewContractsState extends State<NewContracts> {
                   ],
                 ),
               ),
-              Flex(
-                direction: Axis.horizontal,
-                children: <Widget>[
-                  Padding(padding: EdgeInsets.only(left: 10.w)),
-                  Container(
-                    width: 65.w,
-                    height: 80.w,
-                    decoration: const BoxDecoration(
-                      image: DecorationImage(
-                        image: NetworkImage('https://pic2.zhimg.com/v2-639b49f2f6578eabddc458b84eb3c6a1.jpg')
-                      )
-                    )
-                  ) ,
-                  Padding(padding: EdgeInsets.only(right: 10.w)),
-                  Container(
-                    width: 65.w,
-                    height: 80.w,
-                    decoration: const BoxDecoration(
-                      image: DecorationImage(
-                        image: NetworkImage('https://pic2.zhimg.com/v2-639b49f2f6578eabddc458b84eb3c6a1.jpg')
-                      )
-                    )
-                  ) 
-                ],
-              ),
-              Container(
-                height: 20.w,
-                decoration: BoxDecoration(
-                  color: YGColors.color244,
-                )
-              ),
+              const ImagePickerWidget(),
+              // Flex(
+              //   direction: Axis.horizontal,
+              //   children: <Widget>[
+              //     Padding(padding: EdgeInsets.only(left: 10.w)),
+              //     Container(
+              //       width: 65.w,
+              //       height: 80.w,
+              //       decoration: const BoxDecoration(
+              //         image: DecorationImage(
+              //           image: NetworkImage('https://pic2.zhimg.com/v2-639b49f2f6578eabddc458b84eb3c6a1.jpg')
+              //         )
+              //       )
+              //     ) ,
+              //     Padding(padding: EdgeInsets.only(right: 10.w)),
+              //     Container(
+              //       width: 65.w,
+              //       height: 80.w,
+              //       decoration: const BoxDecoration(
+              //         image: DecorationImage(
+              //           image: NetworkImage('https://pic2.zhimg.com/v2-639b49f2f6578eabddc458b84eb3c6a1.jpg')
+              //         )
+              //       )
+              //     ) 
+              //   ],
+              // ),
               Container(
                 padding: EdgeInsets.only(top: 15.w,left: 15.w,right: 15.w),
                 child: Column(
@@ -333,52 +397,57 @@ class _NewContractsState extends State<NewContracts> {
                   ],
                 ),
               ),
-              Container(
-                padding: EdgeInsets.only(left: 2.w,right: 15.w),
-                child:               
-                Row(
-                children: [
-                  IconButton(
-                    icon: const ImageIcon(AssetImage("back_icon.png")),
-                    onPressed: () {},
-                    color: YGColors.color333333,
-                  ),
-                ],
-              ),
-              ),
-              Container(
-                padding: EdgeInsets.only(left: 15.w,right: 15.w),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.zero,
-                          child: 
-                            Image(
-                                image: const NetworkImage("https://pic2.zhimg.com/v2-639b49f2f6578eabddc458b84eb3c6a1.jpg"),
-                                width: 50.w,
-                                height: 70.w,
-                            ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 10.w),
-                          child: 
-                            Image(
-                                image: const NetworkImage("https://pic2.zhimg.com/v2-639b49f2f6578eabddc458b84eb3c6a1.jpg"),
-                                width: 50.w,
-                                height: 70.w,
-                            ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+              const ImagePickerWidget(),
+              // Container(
+              //     padding: EdgeInsets.only(left: 2.w,right: 15.w),
+              //     child:               
+              //     Row(
+              //     children: [
+              //       IconButton(
+              //         icon: const ImageIcon(AssetImage("back_icon.png")),
+              //         onPressed: () {
+              //           // ignore: avoid_print
+              //           print("1111111111111111111111");
+              //           _openGallery();
+              //         },
+              //         color: YGColors.color333333,
+              //       ),
+              //     ],
+              //   ),
+              // ),
+              // Container(
+              //   padding: EdgeInsets.only(left: 15.w,right: 15.w),
+              //   child: Column(
+              //     mainAxisAlignment: MainAxisAlignment.spaceAround,
+              //     crossAxisAlignment: CrossAxisAlignment.start,
+              //     children: [
+              //       Row(
+              //         mainAxisAlignment: MainAxisAlignment.start,
+              //         crossAxisAlignment: CrossAxisAlignment.center,
+              //         children: [
+              //           Padding(
+              //             padding: EdgeInsets.zero,
+              //             child: 
+              //               Image(
+              //                   image: const NetworkImage("https://pic2.zhimg.com/v2-639b49f2f6578eabddc458b84eb3c6a1.jpg"),
+              //                   width: 50.w,
+              //                   height: 70.w,
+              //               ),
+              //           ),
+              //           Padding(
+              //             padding: EdgeInsets.only(left: 10.w),
+              //             child: 
+              //               Image(
+              //                   image: const NetworkImage("https://pic2.zhimg.com/v2-639b49f2f6578eabddc458b84eb3c6a1.jpg"),
+              //                   width: 50.w,
+              //                   height: 70.w,
+              //               ),
+              //           ),
+              //         ],
+              //       ),
+              //     ],
+              //   ),
+              // ),
               Padding(
                 padding: EdgeInsets.only(top: 15.w,bottom: 20.w),
                 child:
@@ -402,4 +471,7 @@ class _NewContractsState extends State<NewContracts> {
   }
   
 }
+
+
+
 
